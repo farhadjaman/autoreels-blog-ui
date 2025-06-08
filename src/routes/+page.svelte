@@ -39,7 +39,7 @@
 
   function handleEdit(couponCode: string, event: Event) {
     event.stopPropagation();
-    console.log('Edit coupon:', couponCode);
+    goto(`/coupons/${couponCode}/edit`);
   }
 
   function formatDate(dateString: string) {
@@ -62,8 +62,15 @@
 <div class="container mx-auto p-6">
   <div class="space-y-6">
     <div class="flex flex-col space-y-2">
-      <h1 class="text-3xl font-bold tracking-tight">Coupons</h1>
-      <p class="text-muted-foreground">Manage and view all available coupons</p>
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight">Coupons</h1>
+          <p class="text-muted-foreground">Manage and view all available coupons</p>
+        </div>
+        <Button onclick={() => goto('/coupons/create')}>
+          + Create New Coupon
+        </Button>
+      </div>
     </div>
 
     {#if loading}

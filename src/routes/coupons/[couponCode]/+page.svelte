@@ -6,12 +6,15 @@
   import { Badge } from '$lib/components/ui/badge';
   import { Skeleton } from '$lib/components/ui/skeleton';
   import * as Card from '$lib/components/ui/card';
+  import * as Dialog from '$lib/components/ui/dialog';
 
   const { couponCode } = page.params;
 
   let coupon: any = null;
   let loading: boolean = true;
   let error: string | null = null;
+  let deleteDialogOpen: boolean = false;
+  let deleting: boolean = false;
 
   const API_BASE_URL = 'https://api.getautoreels.com';
 
@@ -50,26 +53,48 @@
     });
   }
 
-  function formatDateShort(dateString: string) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
-
   function goBack() {
     goto('/');
   }
 
   function handleEdit() {
-    // TODO: Implement edit functionality
-    console.log('Edit coupon:', coupon?.couponCode);
+    goto(`/coupons/${coupon?.couponCode}/edit`);
   }
 
-  function handleDelete() {
-    // TODO: Implement delete functionality
-    console.log('Delete coupon:', coupon?.couponCode);
+  function openDeleteDialog() {
+    deleteDialogOpen = true;
+  }
+
+  function closeDeleteDialog() {
+    deleteDialogOpen = false;
+  }
+
+  async function confirmDelete() {
+    if (!coupon?.couponCode) return;
+
+    try {
+      deleting = true;
+      const response = await fetch(`${API_BASE_URL}/coupons/${coupon.couponCode}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Coupon deleted:', result);
+      
+      // Close dialog and navigate back to main page
+      closeDeleteDialog();
+      goto('/');
+    } catch (err: any) {
+      alert(`Error deleting coupon: ${err.message}`);
+      console.error('Error deleting coupon:', err);
+    } finally {
+      deleting = false;
+    }
   }
 
   function isValidCoupon(coupon: any): boolean {
@@ -234,7 +259,7 @@
           <Button variant="default" onclick={() => handleEdit()}>
             Edit Coupon
           </Button>
-          <Button variant="destructive" onclick={() => handleDelete()}>
+          <Button variant="destructive" onclick={openDeleteDialog}>
             Delete Coupon
           </Button>
         </div>
@@ -242,4 +267,27 @@
       </div>
     {/if}
   </div>
-</div> 
+</div>
+
+<!-- Delete Confirmation Dialog -->
+<Dialog.Root bind:open={deleteDialogOpen}>
+  <Dialog.Content class="sm:max-w-[425px]">
+    <Dialog.Header>
+      <Dialog.Title>Delete Coupon</Dialog.Title>
+      <Dialog.Description>
+        Are you sure you want to delete coupon "{coupon?.couponCode}"? This action cannot be undone.
+      </Dialog.Description>
+    </Dialog.Header>
+    <Dialog.Footer>
+      <Button variant="outline" onclick={closeDeleteDialog} disabled={deleting}>
+        Cancel
+      </Button>
+      <Button variant="destructive" onclick={confirmDelete} disabled={deleting}>
+        {#if deleting}
+          <div class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
+        {/if}
+        Delete Coupon
+      </Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root> 
