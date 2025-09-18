@@ -68,7 +68,7 @@
   }
 
   function goToList() {
-    goto('/');
+    goto('/coupons');
   }
 
   async function handleSave() {

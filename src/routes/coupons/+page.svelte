@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { Button } from '$lib/components/ui/button';
-  import { Badge } from '$lib/components/ui/badge';
-  import { Skeleton } from '$lib/components/ui/skeleton';
-  import * as Table from '$lib/components/ui/table';
+  import { Button } from '@/components/ui/button';
+  import { Badge } from '@/components/ui/badge';
+  import { Skeleton } from '@/components/ui/skeleton';
+  import * as Table from '@/components/ui/table';
 
   let coupons: any[] = [];
   let loading: boolean = true;

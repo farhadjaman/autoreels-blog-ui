@@ -3,8 +3,6 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
-  import { Badge } from '$lib/components/ui/badge';
-  import * as Card from '$lib/components/ui/card';
 
   let couponCode = '';
   let discountPercentage = '';
@@ -18,7 +16,7 @@
   const API_BASE_URL = 'https://api.getautoreels.com';
 
   function goBack() {
-    goto('/');
+    goto('/coupons');
   }
 
   async function handleSubmit() {

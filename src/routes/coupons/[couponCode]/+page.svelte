@@ -54,7 +54,7 @@
   }
 
   function goBack() {
-    goto('/');
+    goto('/coupons');
   }
 
   function handleEdit() {
@@ -119,7 +119,7 @@
 <div class="container mx-auto p-6">
   <div class="space-y-6">
     <div class="flex items-center space-x-2">
-      <Button variant="ghost" href="/" class="p-0">
+      <Button variant="ghost" href="/coupons" class="p-0">
         ← Back to Coupons
       </Button>
     </div>
