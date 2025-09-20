@@ -1,11 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { supabase } from '$lib/supabaseClient';
+  import { v4 as uuidv4 } from 'uuid';
   import type { TablesInsert } from '$lib/types/database.types';
   import MarkdownPreview from '$lib/components/blogs/MarkdownPreview.svelte';
   import MarkdownEditor from '$lib/components/blogs/MarkdownEditor.svelte';
-
-  // shadcn-svelte
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Textarea } from '$lib/components/ui/textarea';
@@ -71,7 +70,6 @@
     { value: 'published', label: 'Published' }
   ] as const;
 
-  // --- Derived state ---
   const languageLabel = $derived(LANGS.find((l) => l.code === i18n.language)?.label ?? 'Language');
   const statusLabel = $derived(STATUSES.find((s) => s.value === post.status)?.label ?? 'Status');
   const translationStatusLabel = $derived(
@@ -80,7 +78,7 @@
   const wordCount = $derived(i18n.content?.trim()?.split(/\s+/).filter(Boolean).length ?? 0);
   const charCount = $derived(i18n.content?.length ?? 0);
 
-  // --- Slugify + effects ---
+
   function slugify(text: string): string {
     return text
       .toString()
@@ -102,7 +100,6 @@
     if (i18n.language) post.default_language = i18n.language;
   });
 
-  // --- Supabase Storage image upload ---
   async function onImagePick(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -110,9 +107,6 @@
 
     try {
       uploadingImg = true;
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
       const userId = user?.id ?? 'anon';
       const ext = file.name.split('.').pop() || 'png';
       const path = `blogs/${userId}/${Date.now()}.${ext}`;
@@ -179,14 +173,14 @@
     }
 
     try {
-      const {
-        data: { user },
-        error: userError
-      } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error('You must be logged in to create a post.');
+      // const {
+      //   data: { user },
+      //   error: userError
+      // } = await supabase.login.getUser();
+      // if (userError || !user) throw new Error('You must be logged in to create a post.');
 
       const blogInsert: TablesInsert<'blogs'> = {
-        author_id: user.id,
+        author_id: uuidv4(),
         status: post.status!,
         featured: !!post.featured,
         default_language: i18n.language!,

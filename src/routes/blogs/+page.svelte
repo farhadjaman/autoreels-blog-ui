@@ -2,8 +2,6 @@
   import { goto } from '$app/navigation';
   import { supabase } from '$lib/supabaseClient';
   import type { Tables } from '$lib/types/database.types';
-
-  // shadcn-svelte components
   import { Button } from '$lib/components/ui/button';
   import {
     Select,
