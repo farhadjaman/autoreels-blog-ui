@@ -12,19 +12,18 @@
   const { couponCode } = page.params;
   console.log('Edit component - received couponCode:', couponCode);
 
-  let coupon: any = null;
-  let loading: boolean = true;
-  let saving: boolean = false;
-  let error: string | null = null;
+  let coupon = $state<any>(null);
+  let loading = $state<boolean>(true);
+  let saving = $state<boolean>(false);
+  let error = $state<string | null>(null);
 
-
-  let formCouponCode = '';
-  let discountPercentage = '';
-  let packages = '';
-  let validFrom = '';
-  let validTo = '';
-  let packageCategory = '';
-  let status = 'active';
+  let formCouponCode = $state('');
+  let discountPercentage = $state('');
+  let packages = $state('');
+  let validFrom = $state('');
+  let validTo = $state('');
+  let packageCategory = $state('');
+  let status = $state('active');
 
   const API_BASE_URL = 'https://api.getautoreels.com';
 
@@ -163,7 +162,7 @@
           <p class="text-muted-foreground">{error}</p>
         </div>
         <div class="flex space-x-2">
-          <Button onclick={() => fetchCoupon(couponCode)} variant="outline">
+          <Button onclick={() => fetchCoupon(couponCode || '')} variant="outline">
             Try Again
           </Button>
           <Button onclick={goToList} variant="secondary">

@@ -10,11 +10,11 @@
 
   const { couponCode } = page.params;
 
-  let coupon: any = null;
-  let loading: boolean = true;
-  let error: string | null = null;
-  let deleteDialogOpen: boolean = false;
-  let deleting: boolean = false;
+  let coupon = $state<any>(null);
+  let loading = $state<boolean>(true);
+  let error = $state<string | null>(null);
+  let deleteDialogOpen = $state<boolean>(false);
+  let deleting = $state<boolean>(false);
 
   const API_BASE_URL = 'https://api.getautoreels.com';
 
@@ -151,7 +151,7 @@
           <p class="text-muted-foreground">{error}</p>
         </div>
         <div class="flex space-x-2">
-          <Button onclick={() => fetchCoupon(couponCode)} variant="outline">
+          <Button onclick={() => fetchCoupon(couponCode || '')} variant="outline">
             Try Again
           </Button>
           <Button onclick={goBack} variant="secondary">

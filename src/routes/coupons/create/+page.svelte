@@ -3,15 +3,16 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
+  import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '$lib/components/ui/card';
 
-  let couponCode = '';
-  let discountPercentage = '';
-  let packageCategory = '';
-  let packages = '';
-  let validFrom = '';
-  let validTo = '';
-  let loading = false;
-  let error: string | null = null;
+  let couponCode = $state('');
+  let discountPercentage = $state('');
+  let packageCategory = $state('');
+  let packages = $state('');
+  let validFrom = $state('');
+  let validTo = $state('');
+  let loading = $state(false);
+  let error = $state<string | null>(null);
 
   const API_BASE_URL = 'https://api.getautoreels.com';
 
@@ -78,11 +79,11 @@
         <p class="text-muted-foreground">Fill in the details to create a new coupon</p>
       </div>
 
-      <Card.Root class="max-w-2xl w-full">
-        <Card.Header>
-          <Card.Title class="text-lg">Coupon Details</Card.Title>
-        </Card.Header>
-        <Card.Content class="space-y-4">
+      <Card class="max-w-2xl w-full">
+        <CardHeader>
+          <CardTitle class="text-lg">Coupon Details</CardTitle>
+        </CardHeader>
+        <CardContent class="space-y-4">
           <div class="space-y-2">
             <Label for="couponCode">Coupon Code *</Label>
             <Input
@@ -154,8 +155,8 @@
               <p class="text-sm text-destructive">{error}</p>
             </div>
           {/if}
-        </Card.Content>
-      </Card.Root>
+        </CardContent>
+      </Card>
 
       <div class="w-full flex gap-3 justify-center">
         <Button variant="secondary" onclick={goBack} disabled={loading}>

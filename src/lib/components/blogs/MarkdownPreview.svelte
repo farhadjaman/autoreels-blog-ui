@@ -33,14 +33,14 @@
 		}
 	});
 
-	function updateSanitizedHtml() {
+	async function updateSanitizedHtml() {
 		if (!browser) {
 			// SSR fallback
-			sanitizedHtml = marked.parse(content || '');
+			sanitizedHtml = await marked.parse(content || '');
 			return;
 		}
 
-		const rawHtml = marked.parse(content || '');
+		const rawHtml = await marked.parse(content || '');
 
 		if (DOMPurify) {
 			sanitizedHtml = DOMPurify.sanitize(rawHtml);

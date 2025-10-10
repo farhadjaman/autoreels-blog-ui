@@ -1,24 +1,22 @@
 <script lang="ts">
-	export let data;
 	import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 	import { Label } from "@/components/ui/label"
 	import { Input } from "@/components/ui/input"
 	import { Button } from "@/components/ui/button"
 	import { goto } from '$app/navigation';
 
-	// pull from layout data
-	let supabase = data.supabase;
-	let session  = data.session;
+	let { data } = $props();
 
-	// if +layout.ts ever re-runs (e.g. after invalidation), keep in sync
-	$: supabase = data.supabase;
-	$: session  = data.session;
+	// Use $derived for reactive values from props
+	const supabase = $derived(data.supabase);
+	const session = $derived(data.session);
 
-	let email = '';
-	let password = '';
-	let loading = false;
+	let email = $state('');
+	let password = $state('');
+	let loading = $state(false);
 
-	async function handleLogin() {
+	async function handleLogin(event: Event) {
+		event.preventDefault();
 		if (loading) return;
 		loading = true;
 		try {
@@ -46,7 +44,7 @@
 		</CardHeader>
 		<CardContent>
 			<!-- Wrap as a form so Enter submits; visually unchanged -->
-			<form class="space-y-4" on:submit|preventDefault={handleLogin}>
+			<form class="space-y-4" onsubmit={handleLogin}>
 				<div class="space-y-2">
 					<Label for="email">Email</Label>
 					<Input id="email" type="email" placeholder="m@example.com" required bind:value={email} />

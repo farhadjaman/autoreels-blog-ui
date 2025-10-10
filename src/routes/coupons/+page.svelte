@@ -6,9 +6,9 @@
   import { Skeleton } from '@/components/ui/skeleton';
   import * as Table from '@/components/ui/table';
 
-  let coupons: any[] = [];
-  let loading: boolean = true;
-  let error: string | null = null;
+  let coupons = $state<any[]>([]);
+  let loading = $state<boolean>(true);
+  let error = $state<string | null>(null);
 
   const API_BASE_URL = 'https://api.getautoreels.com';
 

@@ -1,15 +1,18 @@
 <script lang="ts">
+
+  let { data } = $props()
   import { goto } from '$app/navigation';
-  import { supabase } from '$lib/supabaseClient';
-  import { v4 as uuidv4 } from 'uuid';
+  import { onMount } from 'svelte';
   import type { TablesInsert } from '$lib/types/database.types';
   import MarkdownPreview from '$lib/components/blogs/MarkdownPreview.svelte';
   import MarkdownEditor from '$lib/components/blogs/MarkdownEditor.svelte';
+  import AssetUploadModal from '$lib/components/blogs/AssetUploadModal.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Textarea } from '$lib/components/ui/textarea';
   import { Label } from '$lib/components/ui/label';
   import { Switch } from '$lib/components/ui/switch';
+  import { Badge } from '$lib/components/ui/badge';
   import {
     Select,
     SelectTrigger,
@@ -26,6 +29,7 @@
     CardContent,
     CardFooter
   } from '$lib/components/ui/card';
+  import * as Dialog from '$lib/components/ui/dialog';
 
   // --- Form state ---
   let post = $state<Partial<TablesInsert<'blogs'>>>({
@@ -33,7 +37,7 @@
     featured: false,
     default_language: 'en'
   });
-
+  let user = $state<any>(null)
   let i18n = $state<Partial<TablesInsert<'blogs_i18n'>>>({
     title: '',
     slug: '',
@@ -43,11 +47,37 @@
     translation_status: 'draft'
   });
 
+  // Categories and Tags state
+  let categories = $state<Array<{id: number, name: string, slug: string}>>([]);
+  let tags = $state<Array<{id: number, name: string, slug: string}>>([]);
+  let selectedCategories = $state<number[]>([]);
+  let selectedTags = $state<number[]>([]);
+  let newTag = $state('');
+  let newCategory = $state('');
+
+  const supabase = $derived(data.supabase);
+
+  $effect(()=>{
+    supabase.auth.getUser().then((supUser) => {
+      if (supUser) {
+        user = supUser.data.user;
+      }
+    })
+
+  })
+
+
   let loading = $state(false);
   let errorMsg = $state<string | null>(null);
   let slugWarning = $state<string | null>(null);
   let uploadingImg = $state(false);
   let showPreview = $state(false);
+  let autoSaveStatus = $state<'saved' | 'saving' | 'error' | null>(null);
+  let lastSaved = $state<Date | null>(null);
+  let autoSaveInterval: ReturnType<typeof setInterval> | null = null;
+
+  // Image upload modal state
+  let showImageModal = $state(false);
 
   // Add a reference for the editor component instance
   let editorComponent: MarkdownEditor;
@@ -100,34 +130,118 @@
     if (i18n.language) post.default_language = i18n.language;
   });
 
-  async function onImagePick(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
+  // Load categories and tags on mount
+  onMount(async () => {
+    loadDraft(); // Load any existing draft first
+    await loadCategoriesAndTags();
+    startAutoSave();
+  });
 
+  async function loadCategoriesAndTags() {
     try {
-      uploadingImg = true;
-      const userId = user?.id ?? 'anon';
-      const ext = file.name.split('.').pop() || 'png';
-      const path = `blogs/${userId}/${Date.now()}.${ext}`;
+      // Load categories
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories_i18n')
+        .select('category_id, name, slug')
+        .eq('language', i18n.language || 'en');
 
-      const { error: upErr } = await supabase.storage.from('blog-assets').upload(path, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-      if (upErr) throw upErr;
-
-      const { data: pub } = supabase.storage.from('blog-assets').getPublicUrl(path);
-
-      // Use the editor component's method to insert text at the cursor
-      if (editorComponent) {
-        editorComponent.insertText(`\n![](${pub.publicUrl})\n`);
+      if (!categoriesError && categoriesData) {
+        categories = categoriesData.map(cat => ({
+          id: cat.category_id,
+          name: cat.name,
+          slug: cat.slug
+        }));
       }
-    } catch (e: any) {
-      alert(`Image upload failed: ${e?.message || e}`);
-    } finally {
-      uploadingImg = false;
-      (event.target as HTMLInputElement).value = '';
+
+      // Load tags
+      const { data: tagsData, error: tagsError } = await supabase
+        .from('tags_i18n')
+        .select('tag_id, name, slug')
+        .eq('language', i18n.language || 'en');
+
+      if (!tagsError && tagsData) {
+        tags = tagsData.map(tag => ({
+          id: tag.tag_id,
+          name: tag.name,
+          slug: tag.slug
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading categories and tags:', error);
+    }
+  }
+
+  // Auto-save functionality
+  function startAutoSave() {
+    autoSaveInterval = setInterval(async () => {
+      if (i18n.title?.trim() && i18n.content?.trim()) {
+        await autoSave();
+      }
+    }, 30000); // Auto-save every 30 seconds
+  }
+
+  async function autoSave() {
+    if (!i18n.title?.trim() || !i18n.content?.trim()) return;
+    
+    try {
+      autoSaveStatus = 'saving';
+      
+      // Save to localStorage as backup
+      const draftData = {
+        post,
+        i18n,
+        selectedCategories,
+        selectedTags,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('blog_draft', JSON.stringify(draftData));
+      
+      autoSaveStatus = 'saved';
+      lastSaved = new Date();
+      
+      // Clear status after 3 seconds
+      setTimeout(() => {
+        autoSaveStatus = null;
+      }, 3000);
+    } catch (error) {
+      autoSaveStatus = 'error';
+      console.error('Auto-save failed:', error);
+    }
+  }
+
+  // Load draft from localStorage on mount
+  function loadDraft() {
+    try {
+      const draftData = localStorage.getItem('blog_draft');
+      if (draftData) {
+        const parsed = JSON.parse(draftData);
+        // Only load if it's recent (within 24 hours)
+        const draftTime = new Date(parsed.timestamp);
+        const now = new Date();
+        const hoursDiff = (now.getTime() - draftTime.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursDiff < 24) {
+          post = { ...post, ...parsed.post };
+          i18n = { ...i18n, ...parsed.i18n };
+          selectedCategories = parsed.selectedCategories || [];
+          selectedTags = parsed.selectedTags || [];
+          lastSaved = draftTime;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading draft:', error);
+    }
+  }
+
+  // Image upload functions
+  function openImageModal() {
+    showImageModal = true;
+  }
+
+  function onImageUploadComplete(url: string) {
+    // Insert image into editor
+    if (editorComponent) {
+      editorComponent.insertText(`\n![](${url})\n`);
     }
   }
 
@@ -143,6 +257,121 @@
       .limit(1);
     if (!error && data && data.length > 0) {
       slugWarning = 'This slug already exists for the selected language.';
+    }
+  }
+
+  // Category and Tag management functions
+  function toggleCategory(categoryId: number) {
+    if (selectedCategories.includes(categoryId)) {
+      selectedCategories = selectedCategories.filter(id => id !== categoryId);
+    } else {
+      selectedCategories = [...selectedCategories, categoryId];
+    }
+  }
+
+  function toggleTag(tagId: number) {
+    if (selectedTags.includes(tagId)) {
+      selectedTags = selectedTags.filter(id => id !== tagId);
+    } else {
+      selectedTags = [...selectedTags, tagId];
+    }
+  }
+
+  async function createNewTag() {
+    if (!newTag.trim()) return;
+    
+    try {
+      const slug = slugify(newTag);
+      
+      // Create tag
+      const { data: newTagData, error: tagError } = await supabase
+        .from('tags')
+        .insert({})
+        .select('id')
+        .single();
+
+      if (tagError) {
+        console.error('Tag creation error:', tagError);
+        throw new Error(`Failed to create tag: ${tagError.message}`);
+      }
+
+      if (!newTagData) {
+        throw new Error('Failed to create tag: No data returned');
+      }
+
+      // Create tag translation
+      const { error: i18nError } = await supabase
+        .from('tags_i18n')
+        .insert({
+          tag_id: newTagData.id,
+          language: i18n.language!,
+          name: newTag.trim(),
+          slug: slug
+        });
+
+      if (i18nError) {
+        console.error('Tag i18n creation error:', i18nError);
+        // Try to clean up the created tag
+        await supabase.from('tags').delete().eq('id', newTagData.id);
+        throw new Error(`Failed to create tag translation: ${i18nError.message}`);
+      }
+
+      // Add to local state
+      tags = [...tags, { id: newTagData.id, name: newTag.trim(), slug }];
+      selectedTags = [...selectedTags, newTagData.id];
+      newTag = '';
+    } catch (error) {
+      console.error('Error creating tag:', error);
+      errorMsg = error instanceof Error ? error.message : 'Failed to create tag';
+    }
+  }
+
+  async function createNewCategory() {
+    if (!newCategory.trim()) return;
+    
+    try {
+      const slug = slugify(newCategory);
+      
+      // Create category
+      const { data: newCategoryData, error: categoryError } = await supabase
+        .from('categories')
+        .insert({})
+        .select('id')
+        .single();
+
+      if (categoryError) {
+        console.error('Category creation error:', categoryError);
+        throw new Error(`Failed to create category: ${categoryError.message}`);
+      }
+
+      if (!newCategoryData) {
+        throw new Error('Failed to create category: No data returned');
+      }
+
+      // Create category translation
+      const { error: i18nError } = await supabase
+        .from('categories_i18n')
+        .insert({
+          category_id: newCategoryData.id,
+          language: i18n.language!,
+          name: newCategory.trim(),
+          slug: slug
+        });
+
+      if (i18nError) {
+        console.error('Category i18n creation error:', i18nError);
+        // Try to clean up the created category
+        await supabase.from('categories').delete().eq('id', newCategoryData.id);
+        throw new Error(`Failed to create category translation: ${i18nError.message}`);
+      }
+
+      // Add to local state
+      categories = [...categories, { id: newCategoryData.id, name: newCategory.trim(), slug }];
+      selectedCategories = [...selectedCategories, newCategoryData.id];
+      newCategory = '';
+    } catch (error) {
+      console.error('Error creating category:', error);
+      errorMsg = error instanceof Error ? error.message : 'Failed to create category';
     }
   }
 
@@ -172,15 +401,19 @@
       return;
     }
 
-    try {
-      // const {
-      //   data: { user },
-      //   error: userError
-      // } = await supabase.login.getUser();
-      // if (userError || !user) throw new Error('You must be logged in to create a post.');
+    // Check if user is authenticated
+    if (!user?.id) {
+      errorMsg = 'You must be logged in to create a blog post.';
+      loading = false;
+      return;
+    }
 
+    console.log('User ID:', user.id);
+    console.log('User email:', user.email);
+
+    try {
       const blogInsert: TablesInsert<'blogs'> = {
-        author_id: uuidv4(),
+        author_id: user.id,
         status: post.status!,
         featured: !!post.featured,
         default_language: i18n.language!,
@@ -193,8 +426,13 @@
         .select('id')
         .single();
 
-      if (postError || !newPost) {
-        throw new Error(`Failed to create post: ${postError?.message || 'Unknown error'}`);
+      if (postError) {
+        console.error('Blog creation error:', postError);
+        throw new Error(`Failed to create post: ${postError.message}`);
+      }
+
+      if (!newPost) {
+        throw new Error('Failed to create post: No data returned');
       }
 
       const i18nInsert: TablesInsert<'blogs_i18n'> = {
@@ -215,6 +453,56 @@
       if (i18nError) {
         await supabase.from('blogs').delete().eq('id', newPost.id);
         throw new Error(`Failed to create post content: ${i18nError.message}`);
+      }
+
+      // Save categories (with error handling)
+      if (selectedCategories.length > 0) {
+        try {
+          const categoryInserts = selectedCategories.map(categoryId => ({
+            post_id: newPost.id,
+            category_id: categoryId
+          }));
+          
+          const { error: categoryError } = await supabase
+            .from('blog_categories')
+            .insert(categoryInserts);
+          
+          if (categoryError) {
+            console.error('Failed to save categories:', categoryError);
+            // Don't throw error, just log it - blog post is still saved
+          }
+        } catch (error) {
+          console.error('Error saving categories:', error);
+        }
+      }
+
+      // Save tags (with error handling)
+      if (selectedTags.length > 0) {
+        try {
+          const tagInserts = selectedTags.map(tagId => ({
+            post_id: newPost.id,
+            tag_id: tagId
+          }));
+          
+          const { error: tagError } = await supabase
+            .from('blog_tags')
+            .insert(tagInserts);
+          
+          if (tagError) {
+            console.error('Failed to save tags:', tagError);
+            // Don't throw error, just log it - blog post is still saved
+          }
+        } catch (error) {
+          console.error('Error saving tags:', error);
+        }
+      }
+
+      // Clear draft from localStorage
+      localStorage.removeItem('blog_draft');
+      
+      // Clear auto-save interval
+      if (autoSaveInterval) {
+        clearInterval(autoSaveInterval);
       }
 
       goto('/blogs');
@@ -281,8 +569,9 @@
         <div class="grid gap-2">
           <Label for="language">Language *</Label>
           <Select
+            type="single"
             value={i18n.language}
-            onValueChange={(v) => {
+            onValueChange={(v: string) => {
               if (v) i18n.language = v;
             }}
           >
@@ -300,8 +589,9 @@
         <div class="grid gap-2">
           <Label for="status">Post Status *</Label>
           <Select
+            type="single"
             value={post.status}
-            onValueChange={(v) => {
+            onValueChange={(v: string) => {
               if (v) post.status = v;
             }}
           >
@@ -319,8 +609,9 @@
         <div class="grid gap-2">
           <Label for="translation_status">Translation Status</Label>
           <Select
+            type="single"
             value={i18n.translation_status}
-            onValueChange={(v) => {
+            onValueChange={(v: string) => {
               if (v) i18n.translation_status = v;
             }}
           >
@@ -371,20 +662,34 @@
           <div class="text-xs text-muted-foreground">{wordCount} words • {charCount} chars</div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 mb-2">
-          <input id="imgPick" type="file" accept="image/*" class="hidden" onchange={onImagePick} />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onclick={() => document.getElementById('imgPick')?.click()}
-            disabled={uploadingImg}
-          >
-            {uploadingImg ? 'Uploading…' : 'Insert Image'}
-          </Button>
-
-          <Switch id="preview" checked={showPreview} onCheckedChange={(v) => (showPreview = v)} />
-          <Label for="preview" class="text-xs">Preview</Label>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onclick={openImageModal}
+              class="cursor-pointer hover:scale-[0.98] transition-transform duration-150"
+            >
+              Upload Image
+            </Button>
+            <Switch id="preview" checked={showPreview} onCheckedChange={(v) => (showPreview = v)} />
+            <Label for="preview" class="text-xs">Preview</Label>
+          </div>
+          
+          <!-- Auto-save status -->
+          <div class="flex items-center gap-2 text-xs text-muted-foreground">
+            {#if autoSaveStatus === 'saving'}
+              <div class="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+              <span>Saving...</span>
+            {:else if autoSaveStatus === 'saved'}
+              <span class="text-green-600">Saved</span>
+            {:else if autoSaveStatus === 'error'}
+              <span class="text-red-600">Save failed</span>
+            {:else if lastSaved}
+              <span>Last saved: {lastSaved.toLocaleTimeString()}</span>
+            {/if}
+          </div>
         </div>
 
         <!-- Container with fixed min-height to prevent layout shift -->
@@ -392,7 +697,7 @@
           <!-- Keep both components mounted, just toggle visibility -->
           <MarkdownEditor
             bind:this={editorComponent}
-            value={i18n.content}
+            value={i18n.content || ''}
             onChange={(newValue) => {
               i18n.content = newValue;
             }}
@@ -404,7 +709,7 @@
             class="border rounded-md p-4 bg-white overflow-auto"
             style="display: {showPreview ? 'block' : 'none'}; min-height: 400px;"
           >
-            <MarkdownPreview content={i18n.content} />
+            <MarkdownPreview content={i18n.content || ''} />
           </div>
         </div>
       </div>
@@ -430,6 +735,76 @@
         </div>
       </div>
 
+      <!-- Categories Section -->
+      <div class="grid gap-4">
+        <div class="grid gap-2">
+          <Label>Categories</Label>
+          <div class="flex flex-wrap gap-2">
+            {#each categories as category}
+              <Badge
+                variant={selectedCategories.includes(category.id) ? "default" : "outline"}
+                class="cursor-pointer hover:bg-primary/10"
+                onclick={() => toggleCategory(category.id)}
+              >
+                {category.name}
+              </Badge>
+            {/each}
+          </div>
+          <div class="flex gap-2">
+            <Input
+              placeholder="Add new category"
+              value={newCategory}
+              oninput={(e) => (newCategory = e.currentTarget.value)}
+              onkeydown={(e) => e.key === 'Enter' && createNewCategory()}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onclick={createNewCategory}
+              disabled={!newCategory.trim()}
+              class="cursor-pointer hover:scale-[0.98] transition-transform duration-150 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              Add
+            </Button>
+          </div>
+        </div>
+
+        <!-- Tags Section -->
+        <div class="grid gap-2">
+          <Label>Tags</Label>
+          <div class="flex flex-wrap gap-2">
+            {#each tags as tag}
+              <Badge
+                variant={selectedTags.includes(tag.id) ? "default" : "outline"}
+                class="cursor-pointer hover:bg-primary/10"
+                onclick={() => toggleTag(tag.id)}
+              >
+                {tag.name}
+              </Badge>
+            {/each}
+          </div>
+          <div class="flex gap-2">
+            <Input
+              placeholder="Add new tag"
+              value={newTag}
+              oninput={(e) => (newTag = e.currentTarget.value)}
+              onkeydown={(e) => e.key === 'Enter' && createNewTag()}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onclick={createNewTag}
+              disabled={!newTag.trim()}
+              class="cursor-pointer hover:scale-[0.98] transition-transform duration-150 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              Add
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div class="flex items-center space-x-2">
         <Switch
           id="featured"
@@ -452,7 +827,7 @@
       {/if}
 
       <div class="flex gap-2">
-        <Button variant="outline" onclick={() => goto('/blogs')} disabled={loading}> Cancel </Button>
+        <Button variant="outline" onclick={() => goto('/blogs')} disabled={loading} class="cursor-pointer hover:scale-[0.98] transition-transform duration-150 disabled:cursor-not-allowed disabled:hover:scale-100"> Cancel </Button>
 
         <Button
           onclick={savePost}
@@ -461,6 +836,7 @@
             !i18n.slug?.trim() ||
             !i18n.language ||
             !post.status}
+          class="cursor-pointer hover:scale-[0.98] transition-transform duration-150 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {#if loading}
             <div
@@ -474,4 +850,13 @@
       </div>
     </CardFooter>
   </Card>
+
+  <!-- Image Upload Modal -->
+  <AssetUploadModal 
+    bind:open={showImageModal}
+    onUploadComplete={onImageUploadComplete}
+    bucket="autoreels"
+    folder="blogs"
+    user={user}
+  />
 </div>
