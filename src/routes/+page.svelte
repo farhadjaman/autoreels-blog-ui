@@ -27,12 +27,12 @@
 </svelte:head>
 
 <!-- Hero Section -->
-<section class="relative py-16 md:py-24 flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+<section class="relative py-8 md:py-16 flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
 	<!-- Enhanced Background Elements -->
 	<div class="absolute inset-0 -z-20">
 		<!-- Animated Gradient Orbs -->
-		<div class="absolute w-96 h-96 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full blur-3xl animate-pulse-glow top-1/4 left-1/4"></div>
-		<div class="absolute w-80 h-80 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse-glow bottom-1/4 right-1/4" style="animation-delay: 1s;"></div>
+		<div class="absolute w-96 h-96 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full blur-3xl top-1/4 left-1/4"></div>
+		<div class="absolute w-80 h-80 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl bottom-1/4 right-1/4" style="animation-delay: 1s;"></div>
 		
 		<!-- Floating Social Icons with Enhanced Styling -->
 		<div class="absolute inset-0">
@@ -83,7 +83,7 @@
 	<div class="container mx-auto px-4 text-center relative z-10">
 		<div class="max-w-5xl mx-auto">
 			<!-- Enhanced Tagline -->
-			<div class="mb-8 animate-fade-in">
+			<div class="mb-8">
 				<span class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary/10 to-purple-500/10 text-primary rounded-full text-sm font-semibold border border-primary/20 backdrop-blur-sm">
 					<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
 						<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
@@ -93,7 +93,7 @@
 			</div>
 
 			<!-- Enhanced Main Title -->
-			<h1 class="text-3xl md:text-7xl  font-black text-foreground mb-8 leading-tight tracking-tight animate-fade-in" style="animation-delay: 0.2s;">
+			<h1 class="text-3xl md:text-7xl  font-black text-foreground mb-8 leading-tight tracking-tight">
 				Go Viral with 
 				<span class="bg-gradient-to-r from-primary via-purple-500 to-primary bg-clip-text text-transparent animate-gradient-x" aria-label="AI-Powered">
 					AI-Powered
@@ -105,13 +105,13 @@
 			</h1>
 
 			<!-- Enhanced Subtitle -->
-			<p class="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed font-medium animate-fade-in" style="animation-delay: 0.4s;">
+			<p class="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed font-medium">
 				Elevate your videos with professional-grade animated captions, no design skills needed. 
 				<span class="text-foreground font-semibold">Designed for creators to go viral.</span>
 			</p>
 
 			<!-- Enhanced CTA Section -->
-			<div class="mb-12 animate-fade-in" style="animation-delay: 0.6s;">
+				<div class="mb-12">
 				<div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
 					<Button 
 						onclick={handleAppClick}
@@ -119,7 +119,7 @@
 						aria-label="Start creating animated subtitles for free"
 					>
 						<span class="relative z-10 flex items-center">
-							🔥 Start for Free
+							🚀 Start for Free
 							<svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
 							</svg>

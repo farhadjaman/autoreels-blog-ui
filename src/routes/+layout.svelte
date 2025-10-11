@@ -9,6 +9,7 @@
 	const navItems = [
 		{ name: 'Home', href: '/' },
 		{ name: 'Features', href: '/features' },
+		{ name: 'Pricing', href: '/pricing' },
 		{ name: 'Blog', href: '/blogs' }
 	];
 
@@ -25,10 +26,10 @@
 			<div class="flex items-center space-x-2">
 				<button 
 					onclick={() => goto('/')}
-					class="flex items-center space-x-2 text-xl font-bold text-primary hover:text-primary/80 transition-colors"
+					class="flex items-center space-x-3 text-xl font-bold text-primary hover:text-primary/80 transition-colors"
 				>
-					<span class="text-2xl">🔥</span>
-					<span>AutoReels</span>
+					<img src="/logo.svg" alt="AutoReels Logo" class="h-8 w-8" />
+					<img src="/logo-text.png" alt="AutoReels" class="h-6" />
 				</button>
 			</div>
 
@@ -47,10 +48,11 @@
 			<!-- CTA Button -->
 			<div class="flex items-center space-x-4">
 				<Button 
+
 					onclick={handleAppClick}
-					class="bg-primary hover:bg-primary/90 text-primary-foreground"
+					class="bg-grey-200 hover:bg-grey-200/90 text-gray-800 border-1 flex items-center"
 				>
-					Start for Free
+				🚀 Start for Free
 				</Button>
 			</div>
 		</div>
@@ -69,9 +71,9 @@
 			<div class="grid md:grid-cols-4 gap-8">
 				<!-- Brand -->
 				<div class="md:col-span-2">
-					<div class="flex items-center space-x-2 mb-4">
-						<span class="text-2xl">🔥</span>
-						<span class="text-xl font-bold text-primary">AutoReels</span>
+					<div class="flex items-center space-x-3 mb-4">
+						<img src="/logo.svg" alt="AutoReels Logo" class="h-8 w-8" />
+						<img src="/logo-text.png" alt="AutoReels" class="h-6" />
 					</div>
 					<p class="text-muted-foreground mb-4 max-w-md">
 						The AI-powered platform that helps creators go viral with professional animated subtitles. No design skills needed.
