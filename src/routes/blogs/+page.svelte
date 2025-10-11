@@ -3,14 +3,6 @@
   import { supabase } from '$lib/supabaseClient';
   import type { Tables } from '$lib/types/database.types';
   import { Button } from '$lib/components/ui/button';
-  import {
-    Select,
-    SelectTrigger,
-    SelectContent,
-    SelectItem,
-    SelectGroup,
-    SelectLabel
-  } from '$lib/components/ui/select';
   import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
   import { Skeleton } from '$lib/components/ui/skeleton';
@@ -50,8 +42,35 @@
   let deleteDialogOpen = $state<boolean>(false);
   let postToDelete = $state<PostRow | null>(null);
   let deleting = $state<boolean>(false);
+  let searchQuery = $state<string>('');
+  let selectedCategory = $state<string>('all');
 
   const selectedLangLabel = $derived(LANGS.find((l) => l.code === lang)?.label ?? 'Language');
+  
+  // Filter posts based on search and category
+  const filteredPosts = $derived.by(() => {
+    let filtered = posts;
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(post => 
+        post.title?.toLowerCase().includes(query) ||
+        post.description?.toLowerCase().includes(query)
+      );
+    }
+    
+    // Filter by category (for now, we'll use 'all' since we don't have categories in Supabase)
+    if (selectedCategory !== 'all') {
+      // This would be implemented when categories are added to the database
+      filtered = filtered;
+    }
+    
+    return filtered;
+  });
+
+  // Get featured post
+  const featuredPost = $derived.by(() => posts.find(post => post.featured));
 
   function fmtDate(d: string | null) {
     if (!d) return '';
@@ -150,7 +169,6 @@
   // Also run on mount as a fallback
   fetchPosts().catch(console.error);
 
-
   function openPost(p: PostRow) {
     goto(`/${lang}/${p.slug}`);
   }
@@ -210,229 +228,333 @@
       deleting = false;
     }
   }
+
+  function handleCategoryFilter(category: string) {
+    selectedCategory = category;
+  }
+
+  function handleSearchInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    searchQuery = target.value;
+  }
+
+  function handleAppClick() {
+		window.open('https://app.autoreels.io', '_blank');
+	}
 </script>
 
 <!-- Page header -->
-<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 m-4">
-  <h1 class="text-2xl font-semibold tracking-tight">Blogs</h1>
-
-  <div class="flex items-center gap-3">
-    <Select 
-      type="single"
-      value={lang}
-      onValueChange={(v: string) => {
-        if (v) lang = v;
-      }}
-    >
-      <SelectTrigger class="w-[160px]">
-        {selectedLangLabel}
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Language</SelectLabel>
-          {#each LANGS as l}
-            <SelectItem value={l.code}>{l.label}</SelectItem>
-          {/each}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-
-    <Button onclick={createNew} class="cursor-pointer hover:scale-[0.98] transition-transform duration-150">
-      + New Blog
-    </Button>
-    
-    <Button onclick={() => goto('/blogs/assets')} variant="outline" class="cursor-pointer hover:scale-[0.98] transition-transform duration-150">
-      Assets
-    </Button>
+<section class="py-16 px-6 mx-auto max-w-7xl">
+  <div class="text-center mb-16">
+    <h1 class="text-4xl md:text-5xl font-bold text-foreground mb-6">The Blog</h1>
+    <p class="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">Transcription, meeting, and productivity insights. Delivered by professionals.</p>
   </div>
-</div>
 
-<!-- Error state -->
-{#if errorMsg}
-  <div class="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-4 mx-4">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-        </svg>
-        <span>{errorMsg}</span>
-      </div>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onclick={fetchPosts}
-        class="text-red-700 border-red-300 hover:bg-red-100 cursor-pointer hover:scale-[0.98] transition-transform duration-150"
-      >
-        Retry
-      </Button>
-    </div>
-  </div>
-{/if}
-
-<!-- Loading state -->
-{#if loading}
-  <div class="mx-4 mb-4">
-    <div class="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm text-blue-700">
-      <div class="flex items-center gap-2">
-        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span>Loading blog posts...</span>
-      </div>
-    </div>
-  </div>
-  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mx-4">
-    {#each Array(6) as _}
-      <Card class="overflow-hidden">
-        <Skeleton class="h-40 w-full" />
-        <div class="p-4 space-y-3">
-          <Skeleton class="h-5 w-3/4" />
-          <Skeleton class="h-4 w-full" />
-          <Skeleton class="h-4 w-5/6" />
-        </div>
-      </Card>
-    {/each}
-  </div>
-{:else}
-  {#if posts.length === 0}
-    <Card class="p-8 mx-4 text-center">
-      <CardHeader class="p-0 mb-4">
-        <div class="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-          </svg>
-        </div>
-        <CardTitle class="text-xl">No blog posts found</CardTitle>
-        <CardDescription class="text-base">
-          {#if lang === 'en'}
-            No published blog posts are available in English yet.
-          {:else}
-            No published blog posts are available in Bengali yet.
-          {/if}
-          <br />
-          Try switching languages or create your first blog post.
-        </CardDescription>
-      </CardHeader>
-      <CardContent class="p-0">
-        <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button onclick={createNew} class="w-full sm:w-auto cursor-pointer hover:scale-[0.98] transition-transform duration-150">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Create New Blog
-          </Button>
-          <Button 
-            variant="outline" 
-            onclick={() => lang = lang === 'en' ? 'bn' : 'en'}
-            class="w-full sm:w-auto cursor-pointer hover:scale-[0.98] transition-transform duration-150"
-          >
-            Switch to {lang === 'en' ? 'বাংলা' : 'English'}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  {:else}
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mx-4">
-      {#each posts as p}
-        <Card class="flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-200 group">
-          {#if p.image_url}
-            <div class="relative h-40 w-full overflow-hidden">
-              <img 
-                src={p.image_url} 
-                alt={p.title || 'Blog post image'} 
-                class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200" 
-                loading="lazy"
-                onerror={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  if (target) target.style.display = 'none';
-                }}
-              />
+  <!-- Featured Post Section -->
+  {#if loading}
+    <!-- Featured Post Skeleton -->
+    <div class="mb-20">
+      <div class="rounded-3xl bg-card border shadow-md overflow-hidden">
+        <div class="grid md:grid-cols-2 gap-8 items-center p-8">
+          <!-- Image skeleton -->
+          <div class="flex items-center justify-center">
+            <div class="relative w-full h-80 rounded-2xl overflow-hidden bg-gradient-to-r from-muted via-muted/50 to-muted">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shimmer"></div>
             </div>
-          {/if}
+          </div>
 
-          <div class="p-4 flex flex-col gap-3 flex-1">
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <!-- Accessible clickable title -->
-              <button
-                type="button"
-                class="text-left text-lg font-semibold leading-tight line-clamp-2 cursor-pointer hover:text-primary transition-colors duration-200 flex-1"
-                onclick={() => openPost(p)}
-                onkeydown={(e) => onTitleKeydown(e, p)}
-                aria-label={`Open post: ${p.title || 'Untitled'}`}
-                tabindex="0"
-              >
-                {p.title || 'Untitled'}
-              </button>
+          <!-- Content skeleton -->
+          <div class="space-y-6">
+            <!-- Badge skeleton -->
+            <div class="h-10 w-32 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-full animate-pulse"></div>
 
-              <div class="flex items-center gap-2 shrink-0">
-                {#if p.featured}
-                  <Badge variant="secondary">Featured</Badge>
-                {/if}
-                <div class="flex items-center gap-1 text-xs text-muted-foreground">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>{fmtDate(p.created_at)}</span>
-                </div>
-                <div class="flex items-center gap-1 text-xs text-muted-foreground">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                  </svg>
-                  <span class="uppercase font-medium">{p.language}</span>
-                </div>
-              </div>
+            <!-- Title skeleton -->
+            <div class="space-y-3">
+              <div class="h-8 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" style="width: 90%"></div>
+              <div class="h-8 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" style="width: 70%"></div>
             </div>
 
-            {#if p.description}
-              <p class="text-sm text-muted-foreground line-clamp-3 leading-relaxed">{p.description}</p>
-            {/if}
+            <!-- Description skeleton -->
+            <div class="space-y-2">
+              <div class="h-5 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse"></div>
+              <div class="h-5 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse"></div>
+              <div class="h-5 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" style="width: 80%"></div>
+            </div>
 
-            <div class="mt-auto pt-2">
-              <!-- Action Buttons -->
-              <div class="flex gap-2">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onclick={() => viewPostPreview(p)}
-                  class="flex-1 cursor-pointer hover:scale-[0.98] transition-transform duration-150"
-                >
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  View
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onclick={() => editPost(p)}
-                  class="flex-1 cursor-pointer hover:scale-[0.98] transition-transform duration-150"
-                >
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  Edit
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onclick={() => openDeleteDialog(p)}
-                  class="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer hover:scale-[0.98] transition-transform duration-150"
-                >
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  Delete
-                </Button>
+            <!-- Author skeleton -->
+            <div class="flex items-center gap-3 pt-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-full animate-pulse"></div>
+              <div class="space-y-1">
+                <div class="h-4 w-20 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse"></div>
+                <div class="h-3 w-24 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse"></div>
               </div>
             </div>
           </div>
-        </Card>
-      {/each}
+        </div>
+      </div>
+    </div>
+  {:else if featuredPost}
+    <div class="mb-20">
+      <a href="/{lang}/{featuredPost.slug}" class="block group">
+        <div class="rounded-3xl bg-card hover:scale-[0.98] transition-all duration-500 border  overflow-hidden">
+          <div class="grid md:grid-cols-2 gap-8 items-center p-8">
+            <div class="flex items-center justify-center">
+              {#if featuredPost.image_url}
+                <img 
+                  src={featuredPost.image_url} 
+                  alt={featuredPost.title || 'Featured blog post image'} 
+                  class="w-full h-auto object-cover rounded-2xl max-h-80 shadow-lg" 
+                  loading="eager"
+                />
+              {:else}
+                <div class="w-full h-80 bg-gradient-to-br from-muted to-muted/50 rounded-2xl flex items-center justify-center">
+                  <span class="text-muted-foreground text-lg">No Image</span>
+                </div>
+              {/if}
+            </div>
+
+            <div class="space-y-6">
+              <div>
+                <span class="inline-block border border-primary/20 bg-primary/10 px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wider text-primary">
+                  Featured Guide
+                </span>
+              </div>
+
+              <h3 class="text-2xl sm:text-3xl font-bold leading-tight text-foreground group-hover:text-primary transition-colors">
+                {featuredPost.title}
+              </h3>
+
+              <p class="text-muted-foreground text-lg leading-relaxed">
+                {featuredPost.description}
+              </p>
+
+              <div class="flex items-center gap-3 pt-4">
+                <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <span class="text-primary font-semibold text-sm">A</span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-foreground">By Admin</p>
+                  <p class="text-xs text-muted-foreground">AutoReels Team</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
     </div>
   {/if}
-{/if}
+
+  <!-- Search and Filter Section -->
+  <div class="flex flex-col lg:flex-row gap-8 items-center justify-between mb-16">
+    <div class="flex-1 max-w-lg">
+      <div class="relative">
+        <input 
+          type="search" 
+          placeholder="Search articles..." 
+          class="w-full pl-14 pr-4 py-4 text-base bg-background border-2 border-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-300 shadow-sm" 
+          oninput={handleSearchInput}
+          value={searchQuery}
+        />
+        <svg class="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3 justify-center lg:justify-end">
+      <button 
+        onclick={() => handleCategoryFilter('all')}
+        class="px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 shadow-sm"
+        class:bg-primary={selectedCategory === 'all'}
+        class:text-primary-foreground={selectedCategory === 'all'}
+        class:bg-muted={selectedCategory !== 'all'}
+        class:text-muted-foreground={selectedCategory !== 'all'}
+        class:hover:scale-105={selectedCategory !== 'all'}
+      >
+        All articles
+      </button>
+      <!-- Language selector -->
+      <button 
+        onclick={() => lang = lang === 'en' ? 'bn' : 'en'}
+        class="px-6 py-3 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:scale-105 transition-all duration-300 text-sm font-medium shadow-sm"
+      >
+        {lang === 'en' ? 'বাংলা' : 'English'}
+      </button>
+    </div>
+  </div>
+
+</section>
+
+  <!-- Error state -->
+  {#if errorMsg}
+    <div class="px-6 py-8">
+      <div class="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 max-w-4xl mx-auto">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold">Error loading blog posts</p>
+              <p class="text-red-600">{errorMsg}</p>
+            </div>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onclick={fetchPosts}
+            class="text-red-700 border-red-300 hover:bg-red-100 cursor-pointer hover:scale-105 transition-all duration-200"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Loading state -->
+  {#if loading}
+    <div class="px-6 py-8">
+
+      <!-- Enhanced skeleton grid -->
+      <div class="max-w-7xl mx-auto grid gap-8 md:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-6">
+        {#each Array(6) as _, i}
+          <div class="rounded-3xl bg-card p-6 shadow-lg border border-border/50 hover:shadow-xl transition-all duration-500 animate-fade-in" style="animation-delay: {i * 100}ms;">
+            <!-- Image skeleton with shimmer effect -->
+            <div class="relative h-48 w-full rounded-2xl mb-6 overflow-hidden bg-gradient-to-r from-muted via-muted/50 to-muted">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shimmer"></div>
+            </div>
+            
+            <!-- Content skeleton -->
+            <div class="space-y-4">
+              <!-- Badge skeleton -->
+              <div class="h-8 w-20 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-full animate-pulse"></div>
+              
+              <!-- Title skeleton with varying widths -->
+              <div class="space-y-2">
+                <div class="h-6 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" style="width: {85 + (i % 3) * 5}%"></div>
+                <div class="h-6 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" style="width: {60 + (i % 2) * 10}%"></div>
+              </div>
+              
+              <!-- Description skeleton -->
+              <div class="space-y-2">
+                <div class="h-4 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse"></div>
+                <div class="h-4 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" style="width: 90%"></div>
+                <div class="h-4 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" style="width: 75%"></div>
+              </div>
+            </div>
+            
+            <!-- Author skeleton -->
+            <div class="mt-6 flex items-center gap-3 pt-4 border-t border-border/30">
+              <div class="w-10 h-10 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-full animate-pulse"></div>
+              <div class="space-y-1">
+                <div class="h-4 w-20 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse"></div>
+                <div class="h-3 w-16 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        {/each}
+      </div>
+
+    </div>
+  {:else}
+    {#if filteredPosts.length === 0}
+      <div class="px-6 py-16">
+        <div class="max-w-2xl mx-auto text-center">
+          <div class="w-24 h-24 bg-gradient-to-br from-muted to-muted/50 rounded-full flex items-center justify-center mx-auto mb-8">
+            <svg class="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-foreground mb-4">No blog posts found</h3>
+          <p class="text-lg text-muted-foreground mb-8 leading-relaxed">
+            {#if searchQuery}
+              No posts match your search query "{searchQuery}".
+            {:else if lang === 'en'}
+              No published blog posts are available in English yet.
+            {:else}
+              No published blog posts are available in Bengali yet.
+            {/if}
+            <br />
+            Try adjusting your search or check back later for new content.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              variant="outline" 
+              onclick={() => lang = lang === 'en' ? 'bn' : 'en'}
+              class="px-8 py-3 hover:scale-105 transition-all duration-200"
+            >
+              Switch to {lang === 'en' ? 'বাংলা' : 'English'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    {:else}
+      <!-- Blog Grid -->
+      <div class="px-6 pb-16 max-w-7xl mx-auto">
+        <div class="grid gap-8 md:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {#each filteredPosts as p}
+            <a
+              href="/{lang}/{p.slug}"
+              class="group rounded-3xl overflow-hidden border border-border bg-card hover:shadow-2xl hover:border-grey-300 transition-all duration-500 flex flex-col hover:scale-[0.98]"
+            >
+              <div class="relative h-0 pb-[56.25%] bg-muted overflow-hidden">
+                {#if p.image_url}
+                  <img
+                    src={p.image_url}
+                    class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    alt={p.title || 'Blog post image'}
+                    loading="lazy"
+                    onerror={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target) target.style.display = 'none';
+                    }}
+                  />
+                {:else}
+                  <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                    <span class="text-muted-foreground text-lg">No Image</span>
+                  </div>
+                {/if}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+
+              <div class="p-8 flex flex-col flex-grow">
+                <div class="mb-6">
+                  <span class="inline-block bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wider">
+                    Guide
+                  </span>
+                </div>
+
+                <h3 class="text-xl font-bold leading-tight text-foreground group-hover:text-primary transition-colors mb-4">
+                  {p.title || 'Untitled'}
+                </h3>
+
+                {#if p.description}
+                  <p class="text-muted-foreground text-sm leading-relaxed mb-6 line-clamp-3">
+                    {p.description}
+                  </p>
+                {/if}
+
+                <div class="mt-auto pt-4 border-t border-border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span class="text-primary font-semibold text-xs">A</span>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-foreground">By Admin</p>
+                      <p class="text-xs text-muted-foreground">AutoReels Team</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          {/each}
+        </div>
+      </div>
+    {/if}
+  {/if}
 
 <!-- View Post Modal -->
 {#if viewPost}
@@ -509,3 +631,29 @@
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
+
+<!-- Final CTA Section -->
+<section class="py-20 bg-gradient-to-br from-primary/10 via-purple-500/10 to-primary/10">
+	<div class="container mx-auto px-4 text-center">
+		<div class="max-w-3xl mx-auto">
+			<h2 class="text-3xl md:text-4xl font-bold text-foreground mb-6">
+				Ready to Go Viral?
+			</h2>
+			<p class="text-lg text-muted-foreground mb-8">
+				Join thousands of creators who are already using AutoReels to create engaging content that gets noticed.
+			</p>
+			<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+				<Button 
+					onclick={handleAppClick}
+					class="text-xl font-bold px-10 py-5 rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-primary-foreground hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-primary/25"
+				>
+					🚀 Start Creating Now
+				</Button>
+				<div class="text-sm text-muted-foreground">
+					✨ Free forever • No credit card required
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+

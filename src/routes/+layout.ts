@@ -8,7 +8,7 @@ import { parse } from 'cookie'; // npm i cookie
 export const ssr = false;
 
 export const load: LayoutLoad = async ({ fetch, data, depends }) => {
-	depends('supabase:auth');
+	depends('supabase:client');
 
 	const supabase = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
 		global: { fetch },
@@ -33,9 +33,5 @@ export const load: LayoutLoad = async ({ fetch, data, depends }) => {
 		}
 	});
 
-	const {
-		data: { session }
-	} = await supabase.auth.getSession();
-
-	return { supabase, session };
+	return { supabase };
 };
