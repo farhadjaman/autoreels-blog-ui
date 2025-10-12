@@ -4,7 +4,7 @@
   import { Label } from '$lib/components/ui/label';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Toast } from '$lib/components/ui/toast';
-  import { supabase } from '$lib/supabaseClient';
+  import { supabase } from '@/supabase/supabaseClient';
 
   // Props
   let { 

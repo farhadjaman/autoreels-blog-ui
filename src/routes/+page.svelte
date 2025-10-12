@@ -31,42 +31,43 @@
 	<!-- Enhanced Background Elements -->
 	<div class="absolute inset-0 -z-20">
 		<!-- Animated Gradient Orbs -->
-		<div class="absolute w-96 h-96 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full blur-3xl top-1/4 left-1/4"></div>
-		<div class="absolute w-80 h-80 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl bottom-1/4 right-1/4" style="animation-delay: 1s;"></div>
+		<div class="absolute w-96 h-96 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl top-1/4 left-1/4"></div>
+		<div class="absolute w-80 h-80 bg-gradient-to-r from-accent/20 to-chart-3/20 rounded-full blur-3xl bottom-1/4 right-1/4" style="animation-delay: 1s;"></div>
+		<div class="absolute w-72 h-72 bg-gradient-to-r from-chart-3/15 to-primary/15 rounded-full blur-3xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" style="animation-delay: 2s;"></div>
 		
 		<!-- Floating Social Icons with Enhanced Styling -->
 		<div class="absolute inset-0">
 			<!-- Instagram Icon -->
 			<div class="absolute w-12 h-12 md:w-14 md:h-14 left-[15%] top-[18%] animate-float">
-				<div class="w-full h-full bg-gradient-to-br from-pink-500 via-purple-600 to-pink-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+				<div class="w-full h-full bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
 					<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
 				</div>
 			</div>
 			
 			<!-- Like Icon -->
 			<div class="absolute w-10 h-10 md:w-12 md:h-12 left-[65%] top-[65%] animate-float" style="animation-delay: 0.5s;">
-				<div class="w-full h-full bg-gradient-to-br from-red-500 via-pink-600 to-red-600 rounded-full flex items-center justify-center text-white text-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+				<div class="w-full h-full bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white text-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
 					❤️
 				</div>
 			</div>
 			
 			<!-- Thunder Icon -->
 			<div class="absolute w-10 h-10 md:w-12 md:h-12 left-[35%] top-[15%] animate-float" style="animation-delay: 1s;">
-				<div class="w-full h-full bg-gradient-to-br from-yellow-400 via-orange-500 to-yellow-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+				<div class="w-full h-full bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white text-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
 					⚡
 				</div>
 			</div>
 			
 			<!-- TikTok Icon -->
 			<div class="absolute w-11 h-11 md:w-13 md:h-13 right-[20%] top-[18%] animate-float" style="animation-delay: 1.5s;">
-				<div class="w-full h-full bg-gradient-to-br from-black via-gray-800 to-black rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+				<div class="w-full h-full bg-gradient-to-br from-chart-3 to-accent rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
 					<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
 				</div>
 			</div>
 			
 			<!-- YouTube Icon -->
 			<div class="absolute w-14 h-14 md:w-16 md:h-16 left-[18%] top-[65%] animate-float" style="animation-delay: 2s;">
-				<div class="w-full h-full bg-gradient-to-br from-red-600 via-red-700 to-red-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+				<div class="w-full h-full bg-gradient-to-br from-primary to-chart-3 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
 					<svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
 				</div>
 			</div>
@@ -84,7 +85,7 @@
 		<div class="max-w-5xl mx-auto">
 			<!-- Enhanced Tagline -->
 			<div class="mb-8">
-				<span class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary/10 to-purple-500/10 text-primary rounded-full text-sm font-semibold border border-primary/20 backdrop-blur-sm">
+				<span class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-grey-100 to-fuchsia-300/10 text-primary rounded-full  text-sm font-semibold border border-grey-300 backdrop-blur-sm">
 					<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
 						<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
 					</svg>
@@ -95,7 +96,7 @@
 			<!-- Enhanced Main Title -->
 			<h1 class="text-3xl md:text-7xl  font-black text-foreground mb-8 leading-tight tracking-tight">
 				Go Viral with 
-				<span class="bg-gradient-to-r from-primary via-purple-500 to-primary bg-clip-text text-transparent animate-gradient-x" aria-label="AI-Powered">
+				<span class="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent animate-gradient-x" aria-label="AI-Powered">
 					AI-Powered
 				</span>
 				<br />
@@ -115,7 +116,7 @@
 				<div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
 					<Button 
 						onclick={handleAppClick}
-						class="group relative text-xl font-bold px-10 py-5 rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-primary-foreground hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-primary/25 overflow-hidden"
+						class="group relative text-xl font-bold px-10 py-5 rounded-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-primary/25 overflow-hidden"
 						aria-label="Start creating animated subtitles for free"
 					>
 						<span class="relative z-10 flex items-center">
@@ -183,7 +184,7 @@
 			<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
 				<!-- Content Creators -->
 				<div class="group p-6 bg-background rounded-2xl border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
-					<div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-red-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+					<div class="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
 						<span class="text-2xl">🎬</span>
 					</div>
 					<h3 class="text-xl font-semibold text-foreground mb-2">Content Creators</h3>
@@ -198,7 +199,7 @@
 
 				<!-- Digital Marketers -->
 				<div class="group p-6 bg-background rounded-2xl border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
-					<div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+					<div class="w-12 h-12 bg-gradient-to-br from-chart-3 to-accent rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
 						<span class="text-2xl">📊</span>
 					</div>
 					<h3 class="text-xl font-semibold text-foreground mb-2">Digital Marketers</h3>
@@ -213,7 +214,7 @@
 
 				<!-- Educators -->
 				<div class="group p-6 bg-background rounded-2xl border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
-					<div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+					<div class="w-12 h-12 bg-gradient-to-br from-primary to-chart-3 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
 						<span class="text-2xl">🎓</span>
 					</div>
 					<h3 class="text-xl font-semibold text-foreground mb-2">Educators & Trainers</h3>
@@ -512,7 +513,7 @@
 </section>
 
 <!-- Final CTA Section -->
-<section class="py-16 md:py-20 bg-gradient-to-br from-primary/10 via-purple-500/10 to-primary/10">
+<section class="py-16 md:py-20 bg-gradient-to-br from-primary/10 via-accent/10 to-chart-3/10">
 	<div class="container mx-auto px-4 text-center">
 		<div class="max-w-3xl mx-auto">
 			<h2 class="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -524,7 +525,7 @@
 			<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
 				<Button 
 					onclick={handleAppClick}
-					class="text-xl font-bold px-10 py-5 rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-primary-foreground hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-primary/25"
+					class="text-xl font-bold px-10 py-5 rounded-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-primary/25"
 				>
 					🚀 Start Creating Now
 				</Button>

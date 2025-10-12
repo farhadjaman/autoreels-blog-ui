@@ -223,6 +223,186 @@ export type Database = {
           },
         ]
       }
+      demo: {
+        Row: {
+          config: Json | null
+          content_type: string | null
+          created_at: string | null
+          id: string
+          language: string | null
+          original_height: number | null
+          original_width: number | null
+          path: string | null
+          skeleton: Json | null
+          title: string | null
+          transcription: string | null
+          user_id: string | null
+          video_duration: number
+          video_key: string | null
+          words: Json[] | null
+        }
+        Insert: {
+          config?: Json | null
+          content_type?: string | null
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          original_height?: number | null
+          original_width?: number | null
+          path?: string | null
+          skeleton?: Json | null
+          title?: string | null
+          transcription?: string | null
+          user_id?: string | null
+          video_duration: number
+          video_key?: string | null
+          words?: Json[] | null
+        }
+        Update: {
+          config?: Json | null
+          content_type?: string | null
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          original_height?: number | null
+          original_width?: number | null
+          path?: string | null
+          skeleton?: Json | null
+          title?: string | null
+          transcription?: string | null
+          user_id?: string | null
+          video_duration?: number
+          video_key?: string | null
+          words?: Json[] | null
+        }
+        Relationships: []
+      }
+      feature_definitions: {
+        Row: {
+          created_at: string | null
+          default_value: Json | null
+          description: string | null
+          feature_type: Database["public"]["Enums"]["feature_type_enum"]
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          default_value?: Json | null
+          description?: string | null
+          feature_type: Database["public"]["Enums"]["feature_type_enum"]
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          default_value?: Json | null
+          description?: string | null
+          feature_type?: Database["public"]["Enums"]["feature_type_enum"]
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      feature_usage_logs: {
+        Row: {
+          feature_id: string | null
+          id: string
+          recorded_at: string | null
+          subscription_id: string | null
+          usage_data: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          feature_id?: string | null
+          id?: string
+          recorded_at?: string | null
+          subscription_id?: string | null
+          usage_data?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          feature_id?: string | null
+          id?: string
+          recorded_at?: string | null
+          subscription_id?: string | null
+          usage_data?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_usage_logs_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "feature_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feature_usage_logs_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitations: {
+        Row: {
+          created_at: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          invited_by: string | null
+          role: Database["public"]["Enums"]["user_role_type"]
+          status: string
+          team_id: string | null
+          token: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["user_role_type"]
+          status?: string
+          team_id?: string | null
+          token?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["user_role_type"]
+          status?: string
+          team_id?: string | null
+          token?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       languages: {
         Row: {
           code: string
@@ -240,6 +420,345 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      payment_gateway_products: {
+        Row: {
+          created_at: string | null
+          gateway_id: string | null
+          gateway_lifetime_price_id: string | null
+          gateway_price_id: string | null
+          gateway_product_id: string | null
+          gateway_yearly_price_id: string | null
+          id: string
+          is_active: boolean | null
+          plan_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          gateway_id?: string | null
+          gateway_lifetime_price_id?: string | null
+          gateway_price_id?: string | null
+          gateway_product_id?: string | null
+          gateway_yearly_price_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          plan_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          gateway_id?: string | null
+          gateway_lifetime_price_id?: string | null
+          gateway_price_id?: string | null
+          gateway_product_id?: string | null
+          gateway_yearly_price_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          plan_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_gateway_products_gateway_id_fkey"
+            columns: ["gateway_id"]
+            isOneToOne: false
+            referencedRelation: "payment_gateways"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_gateway_products_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_gateways: {
+        Row: {
+          config: Json | null
+          created_at: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          gateway: string
+          payment_id: string
+          status: Database["public"]["Enums"]["payment_status"]
+          type: Database["public"]["Enums"]["payment_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency: string
+          gateway: string
+          payment_id?: string
+          status: Database["public"]["Enums"]["payment_status"]
+          type: Database["public"]["Enums"]["payment_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          gateway?: string
+          payment_id?: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          type?: Database["public"]["Enums"]["payment_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_gateway"
+            columns: ["gateway"]
+            isOneToOne: false
+            referencedRelation: "payment_gateways"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_features: {
+        Row: {
+          created_at: string | null
+          feature_id: string | null
+          id: string
+          plan_id: string | null
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string | null
+          feature_id?: string | null
+          id?: string
+          plan_id?: string | null
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          created_at?: string | null
+          feature_id?: string | null
+          id?: string
+          plan_id?: string | null
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_features_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "feature_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          billing_interval: Database["public"]["Enums"]["billing_interval_type"]
+          created_at: string | null
+          description: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          lifetime_price: number | null
+          name: string
+          price: number | null
+          updated_at: string | null
+          yearly_price: number | null
+        }
+        Insert: {
+          billing_interval: Database["public"]["Enums"]["billing_interval_type"]
+          created_at?: string | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          lifetime_price?: number | null
+          name: string
+          price?: number | null
+          updated_at?: string | null
+          yearly_price?: number | null
+        }
+        Update: {
+          billing_interval?: Database["public"]["Enums"]["billing_interval_type"]
+          created_at?: string | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          lifetime_price?: number | null
+          name?: string
+          price?: number | null
+          updated_at?: string | null
+          yearly_price?: number | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          active: boolean | null
+          config: Json | null
+          content_type: string | null
+          created_at: string | null
+          description: string | null
+          download_url: string | null
+          id: string
+          language: string | null
+          original_height: number | null
+          original_width: number | null
+          path: string | null
+          skeleton: Json | null
+          status: Database["public"]["Enums"]["project_status_type"] | null
+          team_id: string | null
+          title: string | null
+          transcription: string | null
+          user_id: string | null
+          video_duration: number
+          video_key: string | null
+          words: Json[] | null
+        }
+        Insert: {
+          active?: boolean | null
+          config?: Json | null
+          content_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          download_url?: string | null
+          id?: string
+          language?: string | null
+          original_height?: number | null
+          original_width?: number | null
+          path?: string | null
+          skeleton?: Json | null
+          status?: Database["public"]["Enums"]["project_status_type"] | null
+          team_id?: string | null
+          title?: string | null
+          transcription?: string | null
+          user_id?: string | null
+          video_duration: number
+          video_key?: string | null
+          words?: Json[] | null
+        }
+        Update: {
+          active?: boolean | null
+          config?: Json | null
+          content_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          download_url?: string | null
+          id?: string
+          language?: string | null
+          original_height?: number | null
+          original_width?: number | null
+          path?: string | null
+          skeleton?: Json | null
+          status?: Database["public"]["Enums"]["project_status_type"] | null
+          team_id?: string | null
+          title?: string | null
+          transcription?: string | null
+          user_id?: string | null
+          video_duration?: number
+          video_key?: string | null
+          words?: Json[] | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          payment_gateway_id: string
+          payment_gateway_subscription_id: string | null
+          plan_id: string | null
+          status: Database["public"]["Enums"]["subscription_status_type"]
+          team_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          payment_gateway_id: string
+          payment_gateway_subscription_id?: string | null
+          plan_id?: string | null
+          status: Database["public"]["Enums"]["subscription_status_type"]
+          team_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          payment_gateway_id?: string
+          payment_gateway_subscription_id?: string | null
+          plan_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status_type"]
+          team_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tags: {
         Row: {
@@ -288,6 +807,256 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_features: {
+        Row: {
+          created_at: string | null
+          features: Json
+          id: string
+          last_reset: string | null
+          team_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          features?: Json
+          id?: string
+          last_reset?: string | null
+          team_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          features?: Json
+          id?: string
+          last_reset?: string | null
+          team_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_features_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: true
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          created_at: string | null
+          id: string
+          invited_by: string | null
+          is_active: boolean | null
+          joined_at: string | null
+          role: Database["public"]["Enums"]["user_role_type"]
+          team_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean | null
+          joined_at?: string | null
+          role: Database["public"]["Enums"]["user_role_type"]
+          team_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean | null
+          joined_at?: string | null
+          role?: Database["public"]["Enums"]["user_role_type"]
+          team_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          billing_address: string | null
+          billing_email: string | null
+          created_at: string | null
+          id: string
+          is_personal: boolean | null
+          name: string
+          owner_id: string | null
+          path: unknown | null
+          updated_at: string | null
+          workspace_slug: string | null
+        }
+        Insert: {
+          billing_address?: string | null
+          billing_email?: string | null
+          created_at?: string | null
+          id?: string
+          is_personal?: boolean | null
+          name: string
+          owner_id?: string | null
+          path?: unknown | null
+          updated_at?: string | null
+          workspace_slug?: string | null
+        }
+        Update: {
+          billing_address?: string | null
+          billing_email?: string | null
+          created_at?: string | null
+          id?: string
+          is_personal?: boolean | null
+          name?: string
+          owner_id?: string | null
+          path?: unknown | null
+          updated_at?: string | null
+          workspace_slug?: string | null
+        }
+        Relationships: []
+      }
+      translations: {
+        Row: {
+          config: Json | null
+          created_at: string
+          id: string
+          language: string
+          project_id: string
+          sentences: Json | null
+          skeleton: Json
+          transcription: string | null
+          updated_at: string
+          words: Json
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          language: string
+          project_id: string
+          sentences?: Json | null
+          skeleton: Json
+          transcription?: string | null
+          updated_at?: string
+          words: Json
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          language?: string
+          project_id?: string
+          sentences?: Json | null
+          skeleton?: Json
+          transcription?: string | null
+          updated_at?: string
+          words?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_gateway_customers: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          gateway_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          gateway_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          gateway_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_gateway_customers_gateway_id_fkey"
+            columns: ["gateway_id"]
+            isOneToOne: false
+            referencedRelation: "payment_gateways"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          email_verified: boolean | null
+          first_name: string | null
+          id: string
+          last_login: string | null
+          last_name: string | null
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          email_verified?: boolean | null
+          first_name?: string | null
+          id?: string
+          last_login?: string | null
+          last_name?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          email_verified?: boolean | null
+          first_name?: string | null
+          id?: string
+          last_login?: string | null
+          last_name?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

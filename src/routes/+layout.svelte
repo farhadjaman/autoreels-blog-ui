@@ -4,6 +4,7 @@
 	import '../app.css';
 	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 
 	// Navigation items
 	const navItems = [
@@ -16,10 +17,27 @@
 	function handleAppClick() {
 		window.open('https://app.autoreels.io', '_blank');
 	}
+
+	// Function to check if a nav item is active
+	function isActive(href: string): boolean {
+		const currentPath = page.url.pathname;
+		
+		// Special case for home page
+		if (href === '/' && currentPath === '/') {
+			return true;
+		}
+		
+		// For other pages, check if current path starts with the href
+		if (href !== '/' && currentPath.startsWith(href)) {
+			return true;
+		}
+		
+		return false;
+	}
 </script>
 
 <!-- Header -->
-<header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+<header class="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 	<div class="container mx-auto px-4">
 		<div class="flex h-16 items-center justify-between">
 			<!-- Logo -->
@@ -38,7 +56,10 @@
 				{#each navItems as item}
 					<button
 						onclick={() => goto(item.href)}
-						class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						class="text-sm font-medium transition-colors relative px-3 py-2 rounded-md
+							{isActive(item.href) 
+								? 'text-primary bg-primary/10 font-semibold' 
+								: 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
 					>
 						{item.name}
 					</button>
@@ -48,9 +69,8 @@
 			<!-- CTA Button -->
 			<div class="flex items-center space-x-4">
 				<Button 
-
 					onclick={handleAppClick}
-					class="bg-grey-200 hover:bg-grey-200/90 text-gray-800 border-1 flex items-center"
+					class="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white border-0 flex items-center shadow-lg hover:shadow-xl transition-all duration-300"
 				>
 				🚀 Start for Free
 				</Button>

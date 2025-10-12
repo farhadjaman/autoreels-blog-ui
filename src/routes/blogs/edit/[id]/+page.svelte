@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
-  import { supabase } from '$lib/supabaseClient';
+  import { supabase } from '@/supabase/supabaseClient';
   import type { Tables, TablesInsert } from '$lib/types/database.types';
   import MarkdownPreview from '$lib/components/blogs/MarkdownPreview.svelte';
   import MarkdownEditor from '$lib/components/blogs/MarkdownEditor.svelte';

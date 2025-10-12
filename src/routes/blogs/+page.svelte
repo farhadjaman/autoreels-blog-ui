@@ -1,11 +1,8 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { supabase } from '$lib/supabaseClient';
+  import { supabase } from '@/supabase/supabaseClient';
   import type { Tables } from '$lib/types/database.types';
   import { Button } from '$lib/components/ui/button';
-  import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '$lib/components/ui/card';
-  import { Badge } from '$lib/components/ui/badge';
-  import { Skeleton } from '$lib/components/ui/skeleton';
   import * as Dialog from '$lib/components/ui/dialog';
   import MarkdownPreview from '$lib/components/blogs/MarkdownPreview.svelte';
 
@@ -115,7 +112,7 @@
         `
         )
         .eq('language', lang)
-        .order('created_at', { ascending: false, foreignTable: 'blogs' });
+        .order('created_at', { ascending: false, referencedTable: 'blogs' });
 
       if (error) {
         console.error('Error fetching posts:', error);
