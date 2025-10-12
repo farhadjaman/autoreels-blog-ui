@@ -60,5 +60,11 @@
 		"marked": "^16.3.0",
 		"supabase": ">=1.8.1",
 		"uuid": "^13.0.0"
+	},
+	"overrides": {
+		"estree-walker": "^2.0.2"
+	},
+	"resolutions": {
+		"estree-walker": "^2.0.2"
 	}
 }
