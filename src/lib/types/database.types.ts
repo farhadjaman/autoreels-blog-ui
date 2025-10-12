@@ -76,7 +76,7 @@ export type Database = {
       }
       blogs: {
         Row: {
-          author_id: string | null
+          author_name: string | null
           created_at: string
           default_language: string
           featured: boolean
@@ -86,7 +86,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          author_id?: string | null
+          author_name?: string | null
           created_at?: string
           default_language?: string
           featured?: boolean
@@ -96,7 +96,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          author_id?: string | null
+          author_name?: string | null
           created_at?: string
           default_language?: string
           featured?: boolean

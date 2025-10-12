@@ -11,7 +11,7 @@
     id: Tables<'blogs'>['id'];
     created_at: Tables<'blogs'>['created_at'];
     updated_at: Tables<'blogs'>['updated_at'];
-    author_id: Tables<'blogs'>['author_id'];
+    author_name: Tables<'blogs'>['author_name'];
     featured: Tables<'blogs'>['featured'];
     status: Tables<'blogs'>['status'];
     language: Tables<'blogs_i18n'>['language'];
@@ -108,7 +108,7 @@
           `
           language, title, slug, description, content, image_url,
           meta_title, meta_description, translation_status, created_at, updated_at,
-          blogs!inner(id, created_at, updated_at, author_id, featured, status, hero_image_url)
+          blogs!inner(id, created_at, updated_at, author_name, featured, status, hero_image_url)
         `
         )
         .eq('language', lang)
@@ -133,7 +133,7 @@
         id: row.blogs.id,
         created_at: row.blogs.created_at,
         updated_at: row.blogs.updated_at,
-        author_id: row.blogs.author_id,
+        author_name: row.blogs.author_name,
         featured: row.blogs.featured,
         status: row.blogs.status,
         language: row.language,
@@ -327,10 +327,14 @@
 
               <div class="flex items-center gap-3 pt-4">
                 <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <span class="text-primary font-semibold text-sm">A</span>
+                  <span class="text-primary font-semibold text-sm">
+                    {featuredPost.author_name ? featuredPost.author_name.charAt(0).toUpperCase() : 'A'}
+                  </span>
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-foreground">By Admin</p>
+                  <p class="text-sm font-medium text-foreground">
+                    By {featuredPost.author_name || 'Admin'}
+                  </p>
                   <p class="text-xs text-muted-foreground">AutoReels Team</p>
                 </div>
               </div>
@@ -537,10 +541,14 @@
                 <div class="mt-auto pt-4 border-t border-border">
                   <div class="flex items-center gap-3">
                     <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span class="text-primary font-semibold text-xs">A</span>
+                      <span class="text-primary font-semibold text-xs">
+                        {p.author_name ? p.author_name.charAt(0).toUpperCase() : 'A'}
+                      </span>
                     </div>
                     <div>
-                      <p class="text-sm font-medium text-foreground">By Admin</p>
+                      <p class="text-sm font-medium text-foreground">
+                        By {p.author_name || 'Admin'}
+                      </p>
                       <p class="text-xs text-muted-foreground">AutoReels Team</p>
                     </div>
                   </div>

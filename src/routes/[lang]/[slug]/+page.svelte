@@ -17,7 +17,7 @@
     id: Tables<'blogs'>['id'];
     created_at: Tables<'blogs'>['created_at'];
     updated_at: Tables<'blogs'>['updated_at'];
-    author_id: Tables<'blogs'>['author_id'];
+    author_name: Tables<'blogs'>['author_name'];
     featured: Tables<'blogs'>['featured'];
     status: Tables<'blogs'>['status'];
     language: Tables<'blogs_i18n'>['language'];
@@ -59,7 +59,7 @@
         .select(`
           language, title, slug, description, content, image_url,
           meta_title, meta_description, translation_status, created_at, updated_at,
-          blogs!inner(id, created_at, updated_at, author_id, featured, status, hero_image_url)
+          blogs!inner(id, created_at, updated_at, author_name, featured, status, hero_image_url)
         `)
         .eq('language', lang || '')
         .eq('slug', slug || '')
@@ -80,7 +80,7 @@
         id: data.blogs.id,
         created_at: data.blogs.created_at,
         updated_at: data.blogs.updated_at,
-        author_id: data.blogs.author_id,
+        author_name: data.blogs.author_name,
         featured: data.blogs.featured,
         status: data.blogs.status,
         language: data.language,
